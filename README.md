@@ -3,6 +3,14 @@
 
 <br><br><br>
 
+To replicate my findings
+
+pip install -r requirements.txt
+python prepare_gazi_dataset.py
+python combine_A_and_B.py --fold_A gazi_pix2pix/A --fold_B gazi_pix2pix/B --fold_AB gazi_pix2pix_final --no_multiprocessing
+python train.py --dataroot ./datasets/gazi_pix2pix_final --name gazi_pix2pix --model pix2pix -n_epochs 4000 --gpu_ids 0
+python train.py --dataroot ./datasets/gazi_cyclegan --name gazi_cyclegan --model cycle_gan -n_epochs 4000 --gpu_ids 1
+
 # CycleGAN and pix2pix in PyTorch
 
 **New**:  Please check out [contrastive-unpaired-translation](https://github.com/taesungp/contrastive-unpaired-translation) (CUT), our new unpaired image-to-image translation model that enables fast and memory-efficient training.
