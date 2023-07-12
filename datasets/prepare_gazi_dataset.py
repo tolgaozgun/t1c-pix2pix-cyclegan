@@ -6,7 +6,7 @@ from PIL import Image
 from sklearn.model_selection import train_test_split
 
 # DATASET_FOLDER = "/Users/tolgaozgun/gazi_brains_2020/data/GAZI_BRAINS_2020/sourcedata"
-DATASET_FOLDER = "/tf/shared-datas/TurkBeyinProjesi/GaziBrains_BIDS/GAZI_BRAINS_2020/sourcedata/"
+DATASET_FOLDER = "/workspace/shared-datas/TurkBeyinProjesi/GaziBrains_BIDS/GAZI_BRAINS_2020/sourcedata/"
 
 GAZI_CYCLEGAN_OUTPUT = "./gazi_cyclegan"
 GAZI_PIX2PIX_OUTPUT = "./gazi_pix2pix"
