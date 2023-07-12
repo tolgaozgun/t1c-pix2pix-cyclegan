@@ -6,7 +6,6 @@ import time
 from . import util, html
 from subprocess import Popen, PIPE
 
-
 try:
     import wandb
 except ImportError:
@@ -81,10 +80,11 @@ class Visualizer():
         self.ncols = opt.display_ncols
 
         if self.display_id > 0:  # connect to a visdom server given <display_port> and <display_server>
-            import visdom
-            self.vis = visdom.Visdom(server=opt.display_server, port=opt.display_port, env=opt.display_env)
-            if not self.vis.check_connection():
-                self.create_visdom_connections()
+            pass
+            # import visdom
+            # self.vis = visdom.Visdom(server=opt.display_server, port=opt.display_port, env=opt.display_env)
+            # if not self.vis.check_connection():
+            #     self.create_visdom_connections()
 
         if self.use_wandb:
             self.wandb_run = wandb.init(project=self.wandb_project_name, name=opt.name, config=opt) if not wandb.run else wandb.run
@@ -97,9 +97,13 @@ class Visualizer():
             util.mkdirs([self.web_dir, self.img_dir])
         # create a logging file to store training losses
         self.log_name = os.path.join(opt.checkpoints_dir, opt.name, 'loss_log.txt')
+        self.fid_log_name = os.path.join(opt.checkpoints_dir, opt.name, 'fid_log.txt')
         with open(self.log_name, "a") as log_file:
             now = time.strftime("%c")
             log_file.write('================ Training Loss (%s) ================\n' % now)
+        with open(self.fid_log_name, "a") as log_file:
+            now = time.strftime("%c")
+            log_file.write('================ Validation FID (%s) ================\n' % now)
 
     def reset(self):
         """Reset the self.saved status"""
@@ -111,6 +115,19 @@ class Visualizer():
         print('\n\nCould not connect to Visdom server. \n Trying to start a server....')
         print('Command: %s' % cmd)
         Popen(cmd, shell=True, stdout=PIPE, stderr=PIPE)
+
+    
+    def print_current_fid(self, epoch, fid):
+        """print current fid on console; also save the fid to the disk
+        Parameters:
+            epoch (int) -- current epoch
+            fid (float) - fid metric
+        """
+        message = '(epoch: %d, fid: %.3f) ' % (epoch, fid)
+
+        print(message)  # print the message
+        with open(self.fid_log_name, "a") as log_file:
+            log_file.write('%s\n' % message)  # save the message
 
     def display_current_results(self, visuals, epoch, save_result):
         """Display current results on visdom; save current results to an HTML file.
@@ -150,25 +167,25 @@ class Visualizer():
                     idx += 1
                 if label_html_row != '':
                     label_html += '<tr>%s</tr>' % label_html_row
-                try:
-                    self.vis.images(images, nrow=ncols, win=self.display_id + 1,
-                                    padding=2, opts=dict(title=title + ' images'))
-                    label_html = '<table>%s</table>' % label_html
-                    self.vis.text(table_css + label_html, win=self.display_id + 2,
-                                  opts=dict(title=title + ' labels'))
-                except VisdomExceptionBase:
-                    self.create_visdom_connections()
+                # try:
+                #     self.vis.images(images, nrow=ncols, win=self.display_id + 1,
+                #                     padding=2, opts=dict(title=title + ' images'))
+                #     label_html = '<table>%s</table>' % label_html
+                #     self.vis.text(table_css + label_html, win=self.display_id + 2,
+                #                   opts=dict(title=title + ' labels'))
+                # except VisdomExceptionBase:
+                #     self.create_visdom_connections()
 
             else:     # show each image in a separate visdom panel;
                 idx = 1
-                try:
-                    for label, image in visuals.items():
-                        image_numpy = util.tensor2im(image)
-                        self.vis.image(image_numpy.transpose([2, 0, 1]), opts=dict(title=label),
-                                       win=self.display_id + idx)
-                        idx += 1
-                except VisdomExceptionBase:
-                    self.create_visdom_connections()
+                # try:
+                #     for label, image in visuals.items():
+                #         image_numpy = util.tensor2im(image)
+                #         self.vis.image(image_numpy.transpose([2, 0, 1]), opts=dict(title=label),
+                #                        win=self.display_id + idx)
+                #         idx += 1
+                # except VisdomExceptionBase:
+                #     self.create_visdom_connections()
 
         if self.use_wandb:
             columns = [key for key, _ in visuals.items()]
@@ -222,18 +239,18 @@ class Visualizer():
             self.plot_data = {'X': [], 'Y': [], 'legend': list(losses.keys())}
         self.plot_data['X'].append(epoch + counter_ratio)
         self.plot_data['Y'].append([losses[k] for k in self.plot_data['legend']])
-        try:
-            self.vis.line(
-                X=np.stack([np.array(self.plot_data['X'])] * len(self.plot_data['legend']), 1),
-                Y=np.array(self.plot_data['Y']),
-                opts={
-                    'title': self.name + ' loss over time',
-                    'legend': self.plot_data['legend'],
-                    'xlabel': 'epoch',
-                    'ylabel': 'loss'},
-                win=self.display_id)
-        except VisdomExceptionBase:
-            self.create_visdom_connections()
+        # try:
+        #     self.vis.line(
+        #         X=np.stack([np.array(self.plot_data['X'])] * len(self.plot_data['legend']), 1),
+        #         Y=np.array(self.plot_data['Y']),
+        #         opts={
+        #             'title': self.name + ' loss over time',
+        #             'legend': self.plot_data['legend'],
+        #             'xlabel': 'epoch',
+        #             'ylabel': 'loss'},
+        #         win=self.display_id)
+        # except VisdomExceptionBase:
+        #     self.create_visdom_connections()
         if self.use_wandb:
             self.wandb_run.log(losses)
 
