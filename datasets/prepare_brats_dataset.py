@@ -5,8 +5,8 @@ import numpy as np
 from PIL import Image
 from sklearn.model_selection import train_test_split
 
-DATASET_FOLDER = "/Users/tolgaozgun/Downloads/BraTS_archive/BraTS2021_Training_Data/"
-# DATASET_FOLDER = "/workspace/shared-datas/TurkBeyinProjesi/GaziBrains_BIDS/GAZI_BRAINS_2020/sourcedata/"
+# DATASET_FOLDER = "/Users/tolgaozgun/Downloads/BraTS_archive/BraTS2021_Training_Data/"
+DATASET_FOLDER = "/workspace/shared-datas/TurkBeyinProjesi/BRATS_2020/TrainingData/"
 
 BRATS_CYCLEGAN_OUTPUT = "./brats_cyclegan"
 BRATS_PIX2PIX_OUTPUT = "./brats_pix2pix"
