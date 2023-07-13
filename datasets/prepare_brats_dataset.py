@@ -10,7 +10,7 @@ DATASET_FOLDER = "/workspace/shared-datas/TurkBeyinProjesi/BRATS_2020/TrainingDa
 
 BRATS_CYCLEGAN_OUTPUT = "./brats_cyclegan"
 BRATS_PIX2PIX_OUTPUT = "./brats_pix2pix"
-CREATE_SUB_FOLDERS = True
+CREATE_SUB_FOLDERS = False
 
 VALIDATION_PERCENTAGE = 0.2
 
