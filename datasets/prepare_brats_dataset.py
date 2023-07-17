@@ -8,8 +8,8 @@ from sklearn.model_selection import train_test_split
 # DATASET_FOLDER = "/Users/tolgaozgun/Downloads/BraTS_archive/BraTS2021_Training_Data/"
 DATASET_FOLDER = "/workspace/shared-datas/TurkBeyinProjesi/BRATS_2020/TrainingData/"
 
-BRATS_CYCLEGAN_OUTPUT = "./brats_cyclegan"
-BRATS_PIX2PIX_OUTPUT = "./brats_pix2pix"
+BRATS_CYCLEGAN_OUTPUT = "./brats_cyclegan_shortened"
+BRATS_PIX2PIX_OUTPUT = "./brats_pix2pix_shortened"
 CREATE_SUB_FOLDERS = False
 
 VALIDATION_PERCENTAGE = 0.2
@@ -60,9 +60,9 @@ parse_counter = 0
 
 def parse_images(flair_imgs, t1w_imgs, t2w_imgs, gadolinium_t1w_imgs, sub_no):
     assert(t1w_imgs.shape[2] == t2w_imgs.shape[2] == flair_imgs.shape[2] == gadolinium_t1w_imgs.shape[2])
-    no_of_sequences = t1w_imgs.shape[2]
+    no_of_slices = t1w_imgs.shape[2]
 
-    sequences = range(0, no_of_sequences)
+    sequences = range(0, no_of_slices)
     sequences_train, sequences_val = train_test_split(sequences, test_size=0.2, random_state=42)
 
     if CREATE_SUB_FOLDERS: 
@@ -76,7 +76,12 @@ def parse_images(flair_imgs, t1w_imgs, t2w_imgs, gadolinium_t1w_imgs, sub_no):
         os.makedirs(pix2pix_train_sub_path, exist_ok=True)
         os.makedirs(pix2pix_val_sub_path, exist_ok=True)
 
-    for i in range(0, no_of_sequences):
+    slice_count = len(no_of_slices)
+    for i in range(0, no_of_slices):
+        
+        if i < 20 or i > slice_count - 20:
+            continue
+
         t1w_img = t1w_imgs[..., i]
         t2w_img = t2w_imgs[..., i]
         flair_img = flair_imgs[..., i]
@@ -103,12 +108,12 @@ def parse_images(flair_imgs, t1w_imgs, t2w_imgs, gadolinium_t1w_imgs, sub_no):
                 img_t1w_data = Image.fromarray(t1w_img)
                 img_t2w_data = Image.fromarray(t2w_img)
                 img_flair_data = Image.fromarray(flair_img)
-                img_t1w_data.save(os.path.join(cyclegan_val_sub_path, f"{sub_no}_seq{i}_t1w.png"))
-                img_t2w_data.save(os.path.join(cyclegan_val_sub_path, f"{sub_no}_seq{i}_t2w.png"))
-                img_flair_data.save(os.path.join(cyclegan_val_sub_path, f"{sub_no}_seq{i}_flair.png"))
+                img_t1w_data.save(os.path.join(cyclegan_val_sub_path, f"{sub_no}_slice{i}_t1w.png"))
+                img_t2w_data.save(os.path.join(cyclegan_val_sub_path, f"{sub_no}_slice{i}_t2w.png"))
+                img_flair_data.save(os.path.join(cyclegan_val_sub_path, f"{sub_no}_slice{i}_flair.png"))
 
-            img_A_data.save(os.path.join(cyclegan_valA_folder, f"{sub_no}_seq{i}.png"))
-            img_B_data.save(os.path.join(cyclegan_valB_folder, f"{sub_no}_seq{i}.png"))
+            img_A_data.save(os.path.join(cyclegan_valA_folder, f"{sub_no}_slice{i}.png"))
+            img_B_data.save(os.path.join(cyclegan_valB_folder, f"{sub_no}_slice{i}.png"))
 
 
             # Pix2pix validation dataset
@@ -120,12 +125,12 @@ def parse_images(flair_imgs, t1w_imgs, t2w_imgs, gadolinium_t1w_imgs, sub_no):
                 img_t1w_data = Image.fromarray(t1w_img)
                 img_t2w_data = Image.fromarray(t2w_img)
                 img_flair_data = Image.fromarray(flair_img)
-                img_t1w_data.save(os.path.join(pix2pix_val_sub_path, f"{sub_no}_seq{i}_t1w.png"))
-                img_t2w_data.save(os.path.join(pix2pix_val_sub_path, f"{sub_no}_seq{i}_t2w.png"))
-                img_flair_data.save(os.path.join(pix2pix_val_sub_path, f"{sub_no}_seq{i}_flair.png"))
+                img_t1w_data.save(os.path.join(pix2pix_val_sub_path, f"{sub_no}_slice{i}_t1w.png"))
+                img_t2w_data.save(os.path.join(pix2pix_val_sub_path, f"{sub_no}_slice{i}_t2w.png"))
+                img_flair_data.save(os.path.join(pix2pix_val_sub_path, f"{sub_no}_slice{i}_flair.png"))
 
-            img_A_data.save(os.path.join(pix2pix_valA_folder, f"{sub_no}_seq{i}.png"))
-            img_B_data.save(os.path.join(pix2pix_valB_folder, f"{sub_no}_seq{i}.png"))
+            img_A_data.save(os.path.join(pix2pix_valA_folder, f"{sub_no}_slice{i}.png"))
+            img_B_data.save(os.path.join(pix2pix_valB_folder, f"{sub_no}_slice{i}.png"))
 
         else:
 
@@ -138,12 +143,12 @@ def parse_images(flair_imgs, t1w_imgs, t2w_imgs, gadolinium_t1w_imgs, sub_no):
                 img_t1w_data = Image.fromarray(t1w_img)
                 img_t2w_data = Image.fromarray(t2w_img)
                 img_flair_data = Image.fromarray(flair_img)
-                img_t1w_data.save(os.path.join(cyclegan_train_sub_path, f"{sub_no}_seq{i}_t1w.png"))
-                img_t2w_data.save(os.path.join(cyclegan_train_sub_path, f"{sub_no}_seq{i}_t2w.png"))
-                img_flair_data.save(os.path.join(cyclegan_train_sub_path, f"{sub_no}_seq{i}_flair.png"))
+                img_t1w_data.save(os.path.join(cyclegan_train_sub_path, f"{sub_no}_slice{i}_t1w.png"))
+                img_t2w_data.save(os.path.join(cyclegan_train_sub_path, f"{sub_no}_slice{i}_t2w.png"))
+                img_flair_data.save(os.path.join(cyclegan_train_sub_path, f"{sub_no}_slice{i}_flair.png"))
 
-            img_A_data.save(os.path.join(cyclegan_trainA_folder, f"{sub_no}_seq{i}.png"))
-            img_B_data.save(os.path.join(cyclegan_trainB_folder, f"{sub_no}_seq{i}.png"))
+            img_A_data.save(os.path.join(cyclegan_trainA_folder, f"{sub_no}_slice{i}.png"))
+            img_B_data.save(os.path.join(cyclegan_trainB_folder, f"{sub_no}_slice{i}.png"))
 
             # Pix2pix training dataset
 
@@ -154,12 +159,12 @@ def parse_images(flair_imgs, t1w_imgs, t2w_imgs, gadolinium_t1w_imgs, sub_no):
                 img_t1w_data = Image.fromarray(t1w_img)
                 img_t2w_data = Image.fromarray(t2w_img)
                 img_flair_data = Image.fromarray(flair_img)
-                img_t1w_data.save(os.path.join(pix2pix_train_sub_path, f"{sub_no}_seq{i}_t1w.png"))
-                img_t2w_data.save(os.path.join(pix2pix_train_sub_path, f"{sub_no}_seq{i}_t2w.png"))
-                img_flair_data.save(os.path.join(pix2pix_train_sub_path, f"{sub_no}_seq{i}_flair.png"))
+                img_t1w_data.save(os.path.join(pix2pix_train_sub_path, f"{sub_no}_slice{i}_t1w.png"))
+                img_t2w_data.save(os.path.join(pix2pix_train_sub_path, f"{sub_no}_slice{i}_t2w.png"))
+                img_flair_data.save(os.path.join(pix2pix_train_sub_path, f"{sub_no}_slice{i}_flair.png"))
 
-            img_A_data.save(os.path.join(pix2pix_trainA_folder, f"{sub_no}_seq{i}.png"))
-            img_B_data.save(os.path.join(pix2pix_trainB_folder, f"{sub_no}_seq{i}.png"))
+            img_A_data.save(os.path.join(pix2pix_trainA_folder, f"{sub_no}_slice{i}.png"))
+            img_B_data.save(os.path.join(pix2pix_trainB_folder, f"{sub_no}_slice{i}.png"))
 
     
     global parse_counter
