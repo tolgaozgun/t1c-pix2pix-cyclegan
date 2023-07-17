@@ -76,10 +76,9 @@ def parse_images(flair_imgs, t1w_imgs, t2w_imgs, gadolinium_t1w_imgs, sub_no):
         os.makedirs(pix2pix_train_sub_path, exist_ok=True)
         os.makedirs(pix2pix_val_sub_path, exist_ok=True)
 
-    slice_count = len(no_of_slices)
     for i in range(0, no_of_slices):
         
-        if i < 20 or i > slice_count - 20:
+        if i < 20 or i > no_of_slices - 20:
             continue
 
         t1w_img = t1w_imgs[..., i]
