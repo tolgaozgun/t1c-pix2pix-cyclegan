@@ -58,12 +58,9 @@ def load_data_from_folder(folder_path):
     
 parse_counter = 0
 
-def parse_images(flair_imgs, t1w_imgs, t2w_imgs, gadolinium_t1w_imgs, sub_no):
+def parse_images(flair_imgs, t1w_imgs, t2w_imgs, gadolinium_t1w_imgs, sub_no, is_validation):
     assert(t1w_imgs.shape[2] == t2w_imgs.shape[2] == flair_imgs.shape[2] == gadolinium_t1w_imgs.shape[2])
     no_of_slices = t1w_imgs.shape[2]
-
-    sequences = range(0, no_of_slices)
-    sequences_train, sequences_val = train_test_split(sequences, test_size=0.2, random_state=42)
 
     if CREATE_SUB_FOLDERS: 
         cyclegan_train_sub_path = os.path.join(cyclegan_trainA_folder, sub_no)
@@ -78,7 +75,7 @@ def parse_images(flair_imgs, t1w_imgs, t2w_imgs, gadolinium_t1w_imgs, sub_no):
 
     for i in range(0, no_of_slices):
         
-        if i < 20 or i > no_of_slices - 20:
+        if i < 20 or i > (no_of_slices - 20):
             continue
 
         t1w_img = t1w_imgs[..., i]
@@ -96,7 +93,7 @@ def parse_images(flair_imgs, t1w_imgs, t2w_imgs, gadolinium_t1w_imgs, sub_no):
         img_A_data = Image.fromarray(concatenated_img)
         img_B_data = Image.fromarray(gadolinium_t1w_img)
 
-        if i in sequences_val:
+        if is_validation:
 
             # CycleGAN validation dataset
 
@@ -197,7 +194,19 @@ def get_valid_data_folders(root_dir):
 
 
 def main():
-    get_valid_data_folders(DATASET_FOLDER)
+    data_folders = get_valid_data_folders(DATASET_FOLDER)
+
+    sequences_train, sequences_val = train_test_split(data_folders, test_size=0.2, random_state=42)
+ 
+    for folder_path in sequences_train: 
+        flair_imgs, t1w_imgs, t2w_imgs, gadolinium_t1w_imgs = load_data_from_folder(folder_path)
+        base_name = os.path.basename(folder_path)
+        parse_images(flair_imgs, t1w_imgs, t2w_imgs, gadolinium_t1w_imgs, base_name, False)
+
+    for folder_path in sequences_val: 
+        flair_imgs, t1w_imgs, t2w_imgs, gadolinium_t1w_imgs = load_data_from_folder(folder_path)
+        base_name = os.path.basename(folder_path)
+        parse_images(flair_imgs, t1w_imgs, t2w_imgs, gadolinium_t1w_imgs, base_name, True)
 
 
 if __name__ == "__main__":

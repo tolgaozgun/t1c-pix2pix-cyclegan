@@ -8,8 +8,8 @@ from sklearn.model_selection import train_test_split
 # DATASET_FOLDER = "/Users/tolgaozgun/gazi_brains_2020/data/GAZI_BRAINS_2020/sourcedata"
 DATASET_FOLDER = "/workspace/shared-datas/TurkBeyinProjesi/GaziBrains_BIDS/GAZI_BRAINS_2020/sourcedata/"
 
-GAZI_CYCLEGAN_OUTPUT = "./gazi_cyclegan"
-GAZI_PIX2PIX_OUTPUT = "./gazi_pix2pix"
+GAZI_CYCLEGAN_OUTPUT = "./gazi_cyclegan3"
+GAZI_PIX2PIX_OUTPUT = "./gazi_pix2pix3"
 CREATE_SUB_FOLDERS = True
 
 VALIDATION_PERCENTAGE = 0.2
@@ -55,12 +55,9 @@ def load_data_from_folder(folder_path):
     
 parse_counter = 0
 
-def parse_images(flair_imgs, t1w_imgs, t2w_imgs, gadolinium_t1w_imgs, sub_no):
+def parse_images(flair_imgs, t1w_imgs, t2w_imgs, gadolinium_t1w_imgs, sub_no, is_validation):
     assert(t1w_imgs.shape[2] == t2w_imgs.shape[2] == flair_imgs.shape[2] == gadolinium_t1w_imgs.shape[2])
     no_of_sequences = t1w_imgs.shape[2]
-
-    sequences = range(0, no_of_sequences)
-    sequences_train, sequences_val = train_test_split(sequences, test_size=0.2, random_state=42)
 
     if CREATE_SUB_FOLDERS: 
         cyclegan_train_sub_path = os.path.join(cyclegan_trainA_folder, sub_no)
@@ -89,7 +86,8 @@ def parse_images(flair_imgs, t1w_imgs, t2w_imgs, gadolinium_t1w_imgs, sub_no):
         img_A_data = Image.fromarray(concatenated_img)
         img_B_data = Image.fromarray(gadolinium_t1w_img)
 
-        if i in sequences_val:
+        # if i in sequences_val:
+        if is_validation:
 
             # CycleGAN validation dataset
 
@@ -182,9 +180,7 @@ def get_valid_data_folders(root_dir):
         folder_path = os.path.join(root_dir, folder_name)
         anat_path = os.path.join(folder_path, "anat")
         if os.path.isdir(folder_path) and os.path.isdir(anat_path) and has_optional_files(folder_path, anat_path):
-            flair_imgs, t1w_imgs, t2w_imgs, gadolinium_t1w_imgs = load_data_from_folder(folder_path)
-            base_name = os.path.basename(folder_path)
-            parse_images(flair_imgs, t1w_imgs, t2w_imgs, gadolinium_t1w_imgs, base_name)
+            data_folders.append(folder_path)
 
     return data_folders
 
@@ -199,7 +195,19 @@ def has_optional_files(folder_path, anat_path):
 
 
 def main():
-    get_valid_data_folders(DATASET_FOLDER)
+    data_folders = get_valid_data_folders(DATASET_FOLDER)
+
+    sequences_train, sequences_val = train_test_split(data_folders, test_size=0.2, random_state=42)
+ 
+    for folder_path in sequences_train: 
+        flair_imgs, t1w_imgs, t2w_imgs, gadolinium_t1w_imgs = load_data_from_folder(folder_path)
+        base_name = os.path.basename(folder_path)
+        parse_images(flair_imgs, t1w_imgs, t2w_imgs, gadolinium_t1w_imgs, base_name, False)
+
+    for folder_path in sequences_val: 
+        flair_imgs, t1w_imgs, t2w_imgs, gadolinium_t1w_imgs = load_data_from_folder(folder_path)
+        base_name = os.path.basename(folder_path)
+        parse_images(flair_imgs, t1w_imgs, t2w_imgs, gadolinium_t1w_imgs, base_name, True)
 
 
 if __name__ == "__main__":
