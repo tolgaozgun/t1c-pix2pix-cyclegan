@@ -8,8 +8,8 @@ from sklearn.model_selection import train_test_split
 # DATASET_FOLDER = "/Users/tolgaozgun/Downloads/BraTS_archive/BraTS2021_Training_Data/"
 DATASET_FOLDER = "/workspace/shared-datas/TurkBeyinProjesi/BRATS_2020/TrainingData/"
 
-BRATS_CYCLEGAN_OUTPUT = "./brats_cyclegan_shortened"
-BRATS_PIX2PIX_OUTPUT = "./brats_pix2pix_shortened"
+BRATS_CYCLEGAN_OUTPUT = "./brats_cyclegan_shortened3"
+BRATS_PIX2PIX_OUTPUT = "./brats_pix2pix_shortened3"
 CREATE_SUB_FOLDERS = False
 
 VALIDATION_PERCENTAGE = 0.2
@@ -185,9 +185,7 @@ def get_valid_data_folders(root_dir):
     for folder_name in os.listdir(root_dir):
         folder_path = os.path.join(root_dir, folder_name)
         if os.path.isdir(folder_path):
-            flair_imgs, t1w_imgs, t2w_imgs, gadolinium_t1w_imgs = load_data_from_folder(folder_path)
-            base_name = os.path.basename(folder_path)
-            parse_images(flair_imgs, t1w_imgs, t2w_imgs, gadolinium_t1w_imgs, base_name)
+            data_folders.append(folder_path)
 
     return data_folders
 
